@@ -1,73 +1,126 @@
-"""Define the main controller."""
-
-from typing import List
-
+from typing import List, Optional
 from models.deck import Deck
 from models.player import Player
 
 
-class Controller:
-    """Main controller."""
+class ControleurJeu:
+    """
+    Contrôleur principal du jeu de cartes.
+    Piloté exclusivement par une API (pas de terminal).
+    """
 
-    def __init__(self, deck: Deck, view, checker_strategy):
-        """Has a deck, a list of players and a view."""
-        # models
-        self.players: List[Player] = []
+    NOMBRE_MAX_JOUEURS = 5
+    NOMBRE_MIN_JOUEURS = 2
+
+    def __init__(self, deck: Deck, strategie_verification):
+        """
+        Initialise une nouvelle partie.
+        """
         self.deck = deck
+        self.strategie_verification = strategie_verification
+        self.joueurs: List[Player] = []
+        self.partie_commencee = False
+        self.partie_terminee = False
 
-        # views
-        self.view = view
+    # ---------- GESTION DES JOUEURS ----------
 
-        # check strategy
-        self.checker_strategy = checker_strategy
+    def ajouter_joueur(self, nom: str) -> bool:
+        """
+        Ajoute un joueur à la partie.
+        """
+        if self.partie_commencee or len(self.joueurs) >= self.NOMBRE_MAX_JOUEURS:
+            return False
 
-    def get_players(self):
-        while len(self.players) < 5:  # nombre magique
-            name = self.view.prompt_for_player()
-            if not name:
-                return
-            player = Player(name)
-            self.players.append(player)
+        self.joueurs.append(Player(nom))
+        return True
 
-    def evaluate_game(self):
-        """Evaluate the game."""
-        return self.checker_strategy.check(self.players)
+    def lister_joueurs(self) -> List[str]:
+        """
+        Retourne la liste des noms des joueurs.
+        """
+        return [joueur.name for joueur in self.joueurs]
 
-    def rebuild_deck(self):
-        """Rebuild the deck."""
-        for player in self.players:
-            while player.hand:
-                card = player.hand.pop()
-                card.is_face_up = False
-                self.deck.append(card)
+    # ---------- GESTION DE LA PARTIE ----------
+
+    def peut_demarrer(self) -> bool:
+        """
+        Vérifie si la partie peut démarrer.
+        """
+        return len(self.joueurs) >= self.NOMBRE_MIN_JOUEURS
+
+    def demarrer_partie(self) -> bool:
+        """
+        Démarre la partie et distribue les cartes.
+        """
+        if not self.peut_demarrer():
+            return False
+
         self.deck.shuffle()
+        self.partie_commencee = True
+        self.partie_terminee = False
 
-    def start_game(self):
-        """Shuffle the deck and makes the players draw a card."""
+        for joueur in self.joueurs:
+            carte = self.deck.draw_card()
+            if carte:
+                joueur.hand.append(carte)
+
+        return True
+
+    def reveler_cartes(self) -> bool:
+        """
+        Rend toutes les cartes visibles.
+        """
+        if not self.partie_commencee or self.partie_terminee:
+            return False
+
+        for joueur in self.joueurs:
+            for carte in joueur.hand:
+                carte.is_face_up = True
+
+        return True
+
+    def obtenir_gagnant(self) -> Optional[str]:
+        """
+        Détermine le gagnant de la partie.
+        """
+        if not self.partie_commencee:
+            return None
+
+        self.partie_terminee = True
+        return self.strategie_verification.check(self.joueurs)
+
+    def reinitialiser_partie(self):
+        """
+        Réinitialise complètement la partie.
+        """
+        for joueur in self.joueurs:
+            while joueur.hand:
+                carte = joueur.hand.pop()
+                carte.is_face_up = False
+                self.deck.append(carte)
+
         self.deck.shuffle()
-        for player in self.players:
-            card = self.deck.draw_card()
-            if card:
-                player.hand.append(card)
+        self.partie_commencee = False
+        self.partie_terminee = False
 
-    def run(self):
-        self.get_players()
-
-        running = True
-        while running:
-            self.start_game()
-
-            for player in self.players:
-                self.view.show_player_hand(player.name, player.hand)
-
-            self.view.prompt_for_flip_cards()
-
-            for player in self.players:
-                for card in player.hand:
-                    card.is_face_up = True
-                self.view.show_player_hand(player.name, player.hand)
-
-            self.view.show_winner(self.evaluate_game())
-
-            running = self.view.prompt_for_new_game()
-            self.rebuild_deck()
+    def etat_partie(self) -> dict:
+        """
+        Retourne l'état actuel de la partie (format API).
+        """
+        return {
+            "partie_commencee": self.partie_commencee,
+            "partie_terminee": self.partie_terminee,
+            "joueurs": [
+                {
+                    "nom": joueur.name,
+                    "main": [
+                        {
+                            "carte": str(carte),
+                            "visible": carte.is_face_up
+                        }
+                        for carte in joueur.hand
+                    ]
+                }
+                for joueur in self.joueurs
+            ]
+        }

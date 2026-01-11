@@ -1,35 +1,36 @@
-"""Define the evaluation classes."""
-
 from typing import List
-
 from models.card import RANKS, SUITS
 from models.player import Player
 
 
-class CheckerRankAndSuitIndex:
-    """Check the cards according to their rank and sequence."""
+class StrategieClassementRangCouleur:
+    """
+    Détermine le gagnant selon :
+    - le rang de la carte
+    - la couleur en cas d'égalité
+    """
 
-    def check(self, players: List[Player]):
-        """Start the evaluation."""
-        last_player = players[0]
-        best_candidate = players[0]
+    def check(self, joueurs: List[Player]) -> str:
+        """
+        Retourne le nom du joueur gagnant.
+        """
+        meilleur_joueur = joueurs[0]
+        meilleure_carte = meilleur_joueur.hand[0]
 
-        for player in players[1:]:
-            player_card = player.hand[0]
-            last_player_card = last_player.hand[0]
+        for joueur in joueurs[1:]:
+            carte_actuelle = joueur.hand[0]
 
-            score = (RANKS.index(player_card.rank), SUITS.index(player_card.suit))
-            last_score = (
-                RANKS.index(last_player_card.rank),
-                SUITS.index(last_player_card.suit),
+            score_meilleur = (
+                RANKS.index(meilleure_carte.rank),
+                SUITS.index(meilleure_carte.suit),
+            )
+            score_actuel = (
+                RANKS.index(carte_actuelle.rank),
+                SUITS.index(carte_actuelle.suit),
             )
 
-            if score[0] == last_score[0]:
-                if score[1] > last_score[1]:
-                    best_candidate = player
-            elif score[0] > last_score[0]:
-                best_candidate = player
+            if score_actuel > score_meilleur:
+                meilleur_joueur = joueur
+                meilleure_carte = carte_actuelle
 
-            last_player = player
-
-        return best_candidate.name
+        return meilleur_joueur.name
