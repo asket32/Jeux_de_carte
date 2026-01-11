@@ -1,6 +1,6 @@
 """Entry point."""
 
-from models.deck import Deck
+from models.paquet import Deck
 
 from controllers.base import Controller
 from controllers.evaluate import CheckerRankAndSuitIndex
