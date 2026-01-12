@@ -4,72 +4,48 @@ from rest_framework import status
 
 from controller.base import ControleurJeu
 from controller.evaluate import StrategieClassementRangCouleur
-from models.paquet import Paquet  # CORRECTION : Paquet au lieu de Deck
+from models.paquet import Paquet
 
-# Initialisation globale du jeu
-paquet = Paquet()
+# Initialisation du jeu
 strategie = StrategieClassementRangCouleur()
-controleur = ControleurJeu(paquet, strategie)
+controleur = ControleurJeu(Paquet(), strategie)
 
-
-# ----------------- ENDPOINTS -----------------
-
+# API Ajouter joueur
 class AjouterJoueurAPI(APIView):
-    """Ajouter un joueur à la partie."""
     def post(self, request):
         nom = request.data.get("nom")
-
         if not nom:
-            return Response(
-                {"erreur": "Le nom du joueur est obligatoire"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+            return Response({"erreur": "Le nom du joueur est obligatoire"}, status=status.HTTP_400_BAD_REQUEST)
         if not controleur.ajouter_joueur(nom):
-            return Response(
-                {"erreur": "Impossible d'ajouter le joueur (partie commencée ou maximum atteint)"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"erreur": "Impossible d'ajouter le joueur"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"joueurs": controleur.lister_joueurs()}, status=status.HTTP_201_CREATED)
 
-        return Response({"joueurs": controleur.lister_joueurs()})
-
-
+# API Démarrer partie (réinitialise les cartes avant)
 class DemarrerPartieAPI(APIView):
-    """Démarrer la partie et distribuer les cartes."""
     def post(self, request):
+        # On réinitialise toutes les cartes/mains avant de commencer
+        controleur.reinitialiser_partie()
         if not controleur.demarrer_partie():
-            return Response(
-                {"erreur": "La partie ne peut pas démarrer (nombre minimum de joueurs non atteint)"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"erreur": "Impossible de démarrer la partie, minimum 2 joueurs."}, status=status.HTTP_400_BAD_REQUEST)
         return Response(controleur.etat_partie())
 
-
+# API Révéler cartes
 class RevelerCartesAPI(APIView):
-    """Révéler les cartes des joueurs."""
     def post(self, request):
         if not controleur.reveler_cartes():
-            return Response(
-                {"erreur": "Impossible de révéler les cartes (partie non commencée ou déjà terminée)"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"erreur": "Impossible de révéler les cartes"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(controleur.etat_partie())
 
-
+# API Gagnant
 class GagnantAPI(APIView):
-    """Obtenir le gagnant de la partie."""
     def get(self, request):
         gagnant = controleur.obtenir_gagnant()
         if not gagnant:
-            return Response(
-                {"erreur": "Le gagnant n'est pas encore disponible (partie non commencée)"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"erreur": "Le gagnant n'est pas encore disponible"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"gagnant": gagnant})
 
-
+# API Réinitialiser partie
 class ReinitialiserPartieAPI(APIView):
-    """Réinitialiser complètement la partie."""
     def post(self, request):
         controleur.reinitialiser_partie()
         return Response({"message": "Partie réinitialisée"})
