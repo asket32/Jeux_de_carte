@@ -1,6 +1,8 @@
 import Card from "./Card";
 
 export default function PlayerHand({ joueur }) {
+  if (!joueur || !joueur.main) return null; // <- sécurité
+
   return (
     <div className="mb-4">
       <h3 className="font-bold mb-2">{joueur.nom}</h3>
