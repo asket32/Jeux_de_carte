@@ -5,6 +5,7 @@ from .views import (
     RevelerCartesAPI,
     GagnantAPI,
     ReinitialiserPartieAPI,
+    PiocherAPI
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("partie/reveler/", RevelerCartesAPI.as_view()),
     path("partie/gagnant/", GagnantAPI.as_view()),
     path("partie/reinitialiser/", ReinitialiserPartieAPI.as_view()),
+    path("partie/piocher/", PiocherAPI.as_view()),
 ]

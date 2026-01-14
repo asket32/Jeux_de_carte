@@ -99,3 +99,17 @@ class ReinitialiserPartieAPI(APIView):
             {"message": "Partie réinitialisée"},
             status=status.HTTP_200_OK
         )
+
+# -----------------------
+# API Piocher cartes
+# -----------------------
+
+class PiocherAPI(APIView):
+    def post(self, request):
+        if not controleur.piocher_cartes():
+            return Response(
+                {"erreur": "Impossible de piocher"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response(controleur.etat_partie(), status=status.HTTP_200_OK)

@@ -4,7 +4,8 @@ import {
   demarrerPartie,
   revelerCartes,
   obtenirGagnant,
-  reinitialiserPartie
+  reinitialiserPartie,
+  piocherCartes
 } from "../api/gameApi";
 
 export default function Menu({ setEtatPartie, setGagnant }) {
@@ -12,6 +13,7 @@ export default function Menu({ setEtatPartie, setGagnant }) {
   const [joueursAjoutes, setJoueursAjoutes] = useState([]); // liste des joueurs ajoutés
   const [peutJouer, setPeutJouer] = useState(false); // activer bouton démarrer
   const [nbCartes, setNbCartes] = useState(1);
+  
 
 
   // Met à jour si on peut démarrer (au moins 2 joueurs)
@@ -79,6 +81,16 @@ export default function Menu({ setEtatPartie, setGagnant }) {
     }
   };
 
+  const handlePiocher = async () => {
+  try {
+    const res = await piocherCartes();
+    setEtatPartie(res.data);
+  } catch (err) {
+    console.error(err.response?.data);
+  }
+};
+
+
   return (
     <div className="mb-4 space-y-4">
       {/* --- Ajout joueurs --- */}
@@ -105,6 +117,14 @@ export default function Menu({ setEtatPartie, setGagnant }) {
           className="border px-2 py-1 rounded w-24"
           placeholder="Cartes"
         />
+
+        <button
+          onClick={handlePiocher}
+          className="bg-indigo-500 text-white px-2 py-1 rounded"
+        >
+          Piocher
+        </button>
+
 
       </div>
 

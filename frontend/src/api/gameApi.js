@@ -19,3 +19,7 @@ export const obtenirGagnant = () =>
 
 export const reinitialiserPartie = () =>
   axios.post(`${API_URL}/partie/reinitialiser/`);
+
+export const piocherCartes = () =>
+  axios.post(`${API_URL}/partie/piocher/`);
+
