@@ -118,12 +118,14 @@ export default function Menu({ setEtatPartie, setGagnant }) {
           placeholder="Cartes"
         />
 
-        <button
-          onClick={handlePiocher}
-          className="bg-indigo-500 text-white px-2 py-1 rounded"
-        >
-          Piocher
-        </button>
+     <button
+        onClick={handlePiocher}
+        disabled={!setEtatPartie?.partie_commencee}
+        className="bg-indigo-500 text-white px-2 py-1 rounded disabled:opacity-50"
+      >
+        Piocher
+    </button>
+
 
 
       </div>

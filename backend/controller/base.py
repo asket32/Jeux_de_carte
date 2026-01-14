@@ -14,7 +14,9 @@ class ControleurJeu:
         self.partie_commencee = False
         self.partie_terminee = False
 
-    # ---------------- JOUEURS ----------------
+    # ======================
+    # JOUEURS
+    # ======================
 
     def ajouter_joueur(self, nom: str) -> bool:
         if self.partie_commencee:
@@ -32,12 +34,14 @@ class ControleurJeu:
     def lister_joueurs(self) -> List[str]:
         return [j.nom for j in self.joueurs]
 
-    # ---------------- PARTIE ----------------
+    # ======================
+    # PARTIE
+    # ======================
 
     def peut_demarrer(self) -> bool:
         return len(self.joueurs) >= self.NOMBRE_MIN_JOUEURS
 
-    def demarrer_partie(self, nb_cartes: int = 0) -> bool:
+    def demarrer_partie(self, nb_cartes: int = 1) -> bool:
         if not self.peut_demarrer():
             return False
 
@@ -46,15 +50,28 @@ class ControleurJeu:
         self.partie_commencee = True
         self.partie_terminee = False
 
+        for _ in range(nb_cartes):
+            for joueur in self.joueurs:
+                carte = self.paquet.piocher()
+                if carte:
+                    joueur.ajouter_carte(carte)
+
         return True
 
+    def piocher_cartes(self) -> bool:
+        if not self.partie_commencee or self.partie_terminee:
+            return False
 
+        for joueur in self.joueurs:
+            carte = self.paquet.piocher()
+            if carte:
+                joueur.ajouter_carte(carte)
+
+        return True
 
     def reveler_cartes(self) -> bool:
         if not self.partie_commencee or self.partie_terminee:
             return False
-
-        self.partie_terminee = True
 
         for joueur in self.joueurs:
             for carte in joueur.main:
@@ -63,20 +80,24 @@ class ControleurJeu:
         return True
 
     def obtenir_gagnant(self) -> Optional[str]:
-        if not self.partie_terminee:
+        if not self.partie_commencee:
             return None
 
+        self.partie_terminee = True
         return self.strategie_verification.check(self.joueurs)
 
-    # ---------------- RESET ----------------
+    # ======================
+    # RESET
+    # ======================
 
     def reinitialiser_cartes(self):
         for joueur in self.joueurs:
             cartes = joueur.vider_main()
             for carte in cartes:
                 carte.visible = False
+                self.paquet.append(carte)
 
-        self.paquet.reset()
+        self.paquet.melanger()
         self.partie_commencee = False
         self.partie_terminee = False
 
@@ -84,7 +105,9 @@ class ControleurJeu:
         self.reinitialiser_cartes()
         self.joueurs = []
 
-    # ---------------- ÉTAT ----------------
+    # ======================
+    # ÉTAT
+    # ======================
 
     def etat_partie(self) -> dict:
         return {
@@ -98,17 +121,3 @@ class ControleurJeu:
                 for j in self.joueurs
             ]
         }
-
-        # ---------------- piocher cartes ----------------
-
-    def piocher_cartes(self) -> bool:
-        if not self.partie_commencee or self.partie_terminee:
-            return False
-
-        for joueur in self.joueurs:
-            carte = self.paquet.piocher()
-            if carte:
-                joueur.ajouter_carte(carte)
-
-        return True
-

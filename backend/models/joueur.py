@@ -12,4 +12,4 @@ class Joueur:
         return cartes
 
     def montrer_main(self):
-        return [carte.afficher() for carte in self.main]
+        return [carte.afficher() for carte in self.main]  # Carte.afficher() existe maintenant

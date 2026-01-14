@@ -1,27 +1,18 @@
 import random
-from models.carte import Carte
-
+from models.carte import Carte, RANGS, COULEURS
 
 class Paquet:
-    VALEURS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-    COULEURS = ["♠", "♥", "♦", "♣"]
-
     def __init__(self):
-        self.cartes = []
-        self.reset()
-
-    def reset(self):
-        self.cartes = [
-            Carte(valeur, couleur)
-            for couleur in self.COULEURS
-            for valeur in self.VALEURS
-        ]
+        self.cartes = [Carte(r, c) for c in COULEURS for r in RANGS]
         self.melanger()
 
     def melanger(self):
         random.shuffle(self.cartes)
 
     def piocher(self):
-        if not self.cartes:
-            return None
-        return self.cartes.pop()
+        if self.cartes:
+            return self.cartes.pop()
+        return None
+
+    def append(self, carte):
+        self.cartes.append(carte)
