@@ -42,22 +42,24 @@ class AjouterJoueurAPI(APIView):
 # -----------------------
 class DemarrerPartieAPI(APIView):
     def post(self, request):
-        if len(controleur.joueurs) < 2:
+        nb_cartes = request.data.get("nb_cartes", 1)
+
+        try:
+            nb_cartes = int(nb_cartes)
+        except ValueError:
             return Response(
-                {"erreur": "Impossible de démarrer la partie, minimum 2 joueurs."},
+                {"erreur": "Nombre de cartes invalide"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Réinitialiser seulement les cartes/mains pour une nouvelle partie
-        controleur.reinitialiser_cartes()
-
-        if not controleur.demarrer_partie():
+        if not controleur.demarrer_partie(nb_cartes):
             return Response(
-                {"erreur": "Erreur lors du démarrage de la partie."},
+                {"erreur": "Impossible de démarrer la partie (min 2 joueurs)"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         return Response(controleur.etat_partie(), status=status.HTTP_200_OK)
+
 
 
 # -----------------------

@@ -37,11 +37,12 @@ class ControleurJeu:
     def peut_demarrer(self) -> bool:
         return len(self.joueurs) >= self.NOMBRE_MIN_JOUEURS
 
-    def demarrer_partie(self, nb_cartes: int = 2) -> bool:
+    def demarrer_partie(self, nb_cartes: int = 1) -> bool:
         if not self.peut_demarrer():
             return False
 
         self.reinitialiser_cartes()
+
         self.partie_commencee = True
         self.partie_terminee = False
 
@@ -52,6 +53,7 @@ class ControleurJeu:
                     joueur.ajouter_carte(carte)
 
         return True
+
 
     def reveler_cartes(self) -> bool:
         if not self.partie_commencee or self.partie_terminee:
