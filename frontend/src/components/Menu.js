@@ -8,15 +8,13 @@ import {
   piocherCartes
 } from "../api/gameApi";
 
-export default function Menu({ setEtatPartie, setGagnant }) {
+export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
   const [nomJoueur, setNomJoueur] = useState("");
-  const [joueursAjoutes, setJoueursAjoutes] = useState([]); // liste des joueurs ajoutés
-  const [peutJouer, setPeutJouer] = useState(false); // activer bouton démarrer
+  const [joueursAjoutes, setJoueursAjoutes] = useState([]);
+  const [peutJouer, setPeutJouer] = useState(false);
   const [nbCartes, setNbCartes] = useState(1);
-  
 
-
-  // Met à jour si on peut démarrer (au moins 2 joueurs)
+  // Vérifie si on peut démarrer (>= 2 joueurs)
   useEffect(() => {
     setPeutJouer(joueursAjoutes.length >= 2);
   }, [joueursAjoutes]);
@@ -26,14 +24,9 @@ export default function Menu({ setEtatPartie, setGagnant }) {
 
     try {
       const res = await ajouterJoueur(nomJoueur);
-
-      // Met à jour la liste des joueurs affichée côté front
       setJoueursAjoutes(res.data.joueurs);
-      setNomJoueur(""); // reset input
-
-      // On met aussi à jour l'état de la partie si besoin
+      setNomJoueur("");
       setEtatPartie(res.data);
-
     } catch (err) {
       console.error("Erreur ajout joueur:", err.response?.data || err.message);
       alert(err.response?.data?.erreur || "Erreur ajout joueur");
@@ -45,10 +38,9 @@ export default function Menu({ setEtatPartie, setGagnant }) {
       const res = await demarrerPartie(nbCartes);
       setEtatPartie(res.data);
     } catch (err) {
-      console.error(err.response?.data);
+      console.error("Erreur démarrer partie:", err.response?.data || err.message);
     }
   };
-
 
   const handleReveler = async () => {
     try {
@@ -82,55 +74,51 @@ export default function Menu({ setEtatPartie, setGagnant }) {
   };
 
   const handlePiocher = async () => {
-  try {
-    const res = await piocherCartes();
-    setEtatPartie(res.data);
-  } catch (err) {
-    console.error(err.response?.data);
-  }
-};
-
+    try {
+      const res = await piocherCartes();
+      setEtatPartie(res.data);
+    } catch (err) {
+      console.error("Erreur piocher cartes:", err.response?.data || err.message);
+    }
+  };
 
   return (
-    <div className="mb-4 space-y-4">
-      {/* --- Ajout joueurs --- */}
-      <div className="flex space-x-2">
+    <div className="mb-6 space-y-4 flex flex-col items-center">
+      {/* --- Ajouter joueur --- */}
+      <div className="flex space-x-2 flex-wrap justify-center">
         <input
           type="text"
           value={nomJoueur}
           onChange={(e) => setNomJoueur(e.target.value)}
           placeholder="Nom joueur"
-          className="border px-2 py-1 rounded"
+          className="border text-black px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           onClick={handleAjouter}
-          className="bg-blue-500 text-white px-2 py-1 rounded"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded transition"
         >
           Ajouter joueur
         </button>
+
         <input
           type="number"
           min="1"
           max="5"
           value={nbCartes}
           onChange={(e) => setNbCartes(e.target.value)}
-          className="border px-2 py-1 rounded w-24"
-          placeholder="Cartes"
+          className="border text-black px-2 py-1 rounded w-20 text-center"
         />
 
-     <button
-        onClick={handlePiocher}
-        disabled={!setEtatPartie?.partie_commencee}
-        className="bg-indigo-500 text-white px-2 py-1 rounded disabled:opacity-50"
-      >
-        Piocher
-    </button>
-
-
-
+        <button
+          onClick={handlePiocher}
+          disabled={!etatPartie?.partie_commencee}
+          className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded disabled:opacity-50 transition"
+        >
+          Piocher
+        </button>
       </div>
 
-      {/* Liste des joueurs ajoutés */}
+      {/* --- Liste joueurs ajoutés --- */}
       <div>
         <strong>Joueurs ajoutés :</strong>
         <ul className="list-disc ml-5">
@@ -141,12 +129,12 @@ export default function Menu({ setEtatPartie, setGagnant }) {
       </div>
 
       {/* --- Actions partie --- */}
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 flex-wrap justify-center">
         <button
           onClick={handleDemarrer}
-          disabled={!peutJouer} // actif seulement si >= 2 joueurs
-          className={`px-2 py-1 rounded text-white ${
-            peutJouer ? "bg-green-500" : "bg-gray-400 cursor-not-allowed"
+          disabled={!peutJouer}
+          className={`px-3 py-1 rounded text-white transition ${
+            peutJouer ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 cursor-not-allowed"
           }`}
         >
           Démarrer partie
@@ -154,21 +142,21 @@ export default function Menu({ setEtatPartie, setGagnant }) {
 
         <button
           onClick={handleReveler}
-          className="bg-yellow-500 text-white px-2 py-1 rounded"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded transition"
         >
           Révéler cartes
         </button>
 
         <button
           onClick={handleGagnant}
-          className="bg-purple-500 text-white px-2 py-1 rounded"
+          className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded transition"
         >
           Gagnant
         </button>
 
         <button
           onClick={handleReset}
-          className="bg-red-500 text-white px-2 py-1 rounded"
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition"
         >
           Réinitialiser
         </button>
