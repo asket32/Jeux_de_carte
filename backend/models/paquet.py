@@ -1,18 +1,27 @@
-from typing import Optional
 import random
-from .carte import RANGS, COULEURS, Carte
+from models.carte import Carte
 
-class Paquet(list):
+
+class Paquet:
+    VALEURS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+    COULEURS = ["♠", "♥", "♦", "♣"]
+
     def __init__(self):
-        for rang in RANGS:
-            for couleur in COULEURS:
-                self.append(Carte(couleur, rang))
+        self.cartes = []
+        self.reset()
+
+    def reset(self):
+        self.cartes = [
+            Carte(valeur, couleur)
+            for couleur in self.COULEURS
+            for valeur in self.VALEURS
+        ]
         self.melanger()
 
     def melanger(self):
-        random.shuffle(self)
+        random.shuffle(self.cartes)
 
-    def piocher(self) -> Optional[Carte]:
-        if not self:
+    def piocher(self):
+        if not self.cartes:
             return None
-        return self.pop()
+        return self.cartes.pop()

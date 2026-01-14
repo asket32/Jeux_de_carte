@@ -6,7 +6,6 @@ from models.joueur import Joueur
 class ControleurJeu:
     NOMBRE_MAX_JOUEURS = 5
     NOMBRE_MIN_JOUEURS = 2
-    NOMBRE_CARTES_PAR_JOUEUR = 2  # 🔥 facile à modifier
 
     def __init__(self, paquet: Paquet, strategie_verification):
         self.paquet = paquet
@@ -15,9 +14,7 @@ class ControleurJeu:
         self.partie_commencee = False
         self.partie_terminee = False
 
-    # ====================
-    # JOUEURS
-    # ====================
+    # ---------------- JOUEURS ----------------
 
     def ajouter_joueur(self, nom: str) -> bool:
         if self.partie_commencee:
@@ -27,7 +24,7 @@ class ControleurJeu:
             return False
 
         if any(j.nom == nom for j in self.joueurs):
-            return False  # évite doublons
+            return False
 
         self.joueurs.append(Joueur(nom))
         return True
@@ -35,24 +32,20 @@ class ControleurJeu:
     def lister_joueurs(self) -> List[str]:
         return [j.nom for j in self.joueurs]
 
-    # ====================
-    # PARTIE
-    # ====================
+    # ---------------- PARTIE ----------------
 
     def peut_demarrer(self) -> bool:
         return len(self.joueurs) >= self.NOMBRE_MIN_JOUEURS
 
-    def demarrer_partie(self) -> bool:
+    def demarrer_partie(self, nb_cartes: int = 2) -> bool:
         if not self.peut_demarrer():
             return False
 
-        # Nouvelle manche → reset cartes seulement
         self.reinitialiser_cartes()
-
         self.partie_commencee = True
         self.partie_terminee = False
 
-        for _ in range(self.NOMBRE_CARTES_PAR_JOUEUR):
+        for _ in range(nb_cartes):
             for joueur in self.joueurs:
                 carte = self.paquet.piocher()
                 if carte:
@@ -64,6 +57,8 @@ class ControleurJeu:
         if not self.partie_commencee or self.partie_terminee:
             return False
 
+        self.partie_terminee = True
+
         for joueur in self.joueurs:
             for carte in joueur.main:
                 carte.visible = True
@@ -71,36 +66,28 @@ class ControleurJeu:
         return True
 
     def obtenir_gagnant(self) -> Optional[str]:
-        if not self.partie_commencee:
+        if not self.partie_terminee:
             return None
 
-        self.partie_terminee = True
         return self.strategie_verification.check(self.joueurs)
 
-    # ====================
-    # RESET
-    # ====================
+    # ---------------- RESET ----------------
 
     def reinitialiser_cartes(self):
-        """Relance une manche sans supprimer les joueurs"""
         for joueur in self.joueurs:
             cartes = joueur.vider_main()
             for carte in cartes:
                 carte.visible = False
-                self.paquet.append(carte)
 
-        self.paquet.melanger()
+        self.paquet.reset()
         self.partie_commencee = False
         self.partie_terminee = False
 
     def reinitialiser_partie(self):
-        """Nouvelle session → nouveaux joueurs"""
         self.reinitialiser_cartes()
         self.joueurs = []
 
-    # ====================
-    # ÉTAT
-    # ====================
+    # ---------------- ÉTAT ----------------
 
     def etat_partie(self) -> dict:
         return {

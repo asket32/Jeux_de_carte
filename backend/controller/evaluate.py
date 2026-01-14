@@ -1,19 +1,23 @@
-from typing import List
-from models.carte import RANGS, COULEURS
-from models.joueur import Joueur
-
 class StrategieClassementRangCouleur:
-    """Détermine le gagnant selon rang et couleur"""
+    def check(self, joueurs):
+        """
+        Stratégie simple :
+        - Compare la valeur de la carte la plus haute
+        """
+        ordre = {
+            "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
+            "7": 7, "8": 8, "9": 9, "10": 10,
+            "J": 11, "Q": 12, "K": 13, "A": 14
+        }
 
-    def check(self, joueurs: List[Joueur]) -> str:
-        meilleur_joueur = joueurs[0]
-        meilleure_carte = meilleur_joueur.main[0]
+        meilleur_joueur = None
+        meilleure_valeur = -1
 
-        for joueur in joueurs[1:]:
-            carte_actuelle = joueur.main[0]
-            score_meilleur = (RANGS.index(meilleure_carte.rang), COULEURS.index(meilleure_carte.couleur))
-            score_actuel = (RANGS.index(carte_actuelle.rang), COULEURS.index(carte_actuelle.couleur))
-            if score_actuel > score_meilleur:
-                meilleur_joueur = joueur
-                meilleure_carte = carte_actuelle
-        return meilleur_joueur.nom
+        for joueur in joueurs:
+            for carte in joueur.main:
+                valeur = ordre.get(carte.valeur, 0)
+                if valeur > meilleure_valeur:
+                    meilleure_valeur = valeur
+                    meilleur_joueur = joueur.nom
+
+        return meilleur_joueur

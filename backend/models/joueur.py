@@ -1,20 +1,15 @@
-from typing import List
-from .carte import Carte
-
 class Joueur:
     def __init__(self, nom: str):
         self.nom = nom
-        self.main: List[Carte] = []
+        self.main = []
 
-    def ajouter_carte(self, carte: Carte):
-        if not isinstance(carte, Carte):
-            raise ValueError("Vous ne pouvez ajouter que des cartes !")
+    def ajouter_carte(self, carte):
         self.main.append(carte)
 
-    def montrer_main(self) -> list:
-        return [carte.to_dict() for carte in self.main]
-
-    def vider_main(self) -> list:
-        cartes = self.main.copy()
-        self.main.clear()
+    def vider_main(self):
+        cartes = self.main
+        self.main = []
         return cartes
+
+    def montrer_main(self):
+        return [carte.afficher() for carte in self.main]
