@@ -5,8 +5,11 @@ const API_URL = "http://localhost:8000/api"; // URL de ton API Django
 export const ajouterJoueur = (nom) =>
   axios.post(`${API_URL}/joueurs/ajouter/`, { nom });
 
-export const demarrerPartie = () =>
-  axios.post(`${API_URL}/partie/demarrer/`);
+export const demarrerPartie = (nb_cartes) =>
+  axios.post(`${API_URL}/partie/demarrer/`, {
+    nb_cartes
+  });
+
 
 export const revelerCartes = () =>
   axios.post(`${API_URL}/partie/reveler/`);

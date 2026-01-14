@@ -11,6 +11,8 @@ export default function Menu({ setEtatPartie, setGagnant }) {
   const [nomJoueur, setNomJoueur] = useState("");
   const [joueursAjoutes, setJoueursAjoutes] = useState([]); // liste des joueurs ajoutés
   const [peutJouer, setPeutJouer] = useState(false); // activer bouton démarrer
+  const [nbCartes, setNbCartes] = useState(1);
+
 
   // Met à jour si on peut démarrer (au moins 2 joueurs)
   useEffect(() => {
@@ -38,13 +40,13 @@ export default function Menu({ setEtatPartie, setGagnant }) {
 
   const handleDemarrer = async () => {
     try {
-      const res = await demarrerPartie();
+      const res = await demarrerPartie(nbCartes);
       setEtatPartie(res.data);
     } catch (err) {
-      console.error("Erreur démarrer partie:", err.response?.data || err.message);
-      alert(err.response?.data?.erreur || "Impossible de démarrer la partie");
+      console.error(err.response?.data);
     }
   };
+
 
   const handleReveler = async () => {
     try {
@@ -94,6 +96,16 @@ export default function Menu({ setEtatPartie, setGagnant }) {
         >
           Ajouter joueur
         </button>
+        <input
+          type="number"
+          min="1"
+          max="5"
+          value={nbCartes}
+          onChange={(e) => setNbCartes(e.target.value)}
+          className="border px-2 py-1 rounded w-24"
+          placeholder="Cartes"
+        />
+
       </div>
 
       {/* Liste des joueurs ajoutés */}
