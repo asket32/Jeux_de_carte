@@ -1,30 +1,50 @@
+// GameBoard.js
 import { motion, AnimatePresence } from "framer-motion";
-import PlayerHand from "./PlayerHand";
+import Card from "./Card";
 
 export default function GameBoard({ etatPartie }) {
-   if (!etatPartie || !Array.isArray(etatPartie.joueurs)) return null;
+  const joueurs = Array.isArray(etatPartie?.joueurs)
+    ? etatPartie.joueurs
+    : [];
+
+  if (joueurs.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-gray-500">
+        Ajoutez des joueurs pour commencer 🎴
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6">
-      {etatPartie.joueurs.map((joueur, idxJ) => (
-        <div key={idxJ} className="flex flex-col items-center">
-          <h3 className="font-bold mb-2 text-lg">{joueur.nom}</h3>
-          <div className="flex space-x-2 justify-center">
+    <div className="flex flex-row items-center justify-center gap-8 flex-wrap mt-6">
+      {joueurs.map((joueur, idxJ) => (
+        <motion.div
+          key={idxJ}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center"
+        >
+          <h3 className="font-bold mb-3 text-xl text-gray-800">
+            {joueur.nom}
+          </h3>
+
+          <div className="flex space-x-3">
             <AnimatePresence>
-              {joueur.main.map((carte, idx) => (
+              {(joueur.main || []).map((carte, idx) => (
                 <motion.div
                   key={idx}
-                  initial={{ y: -50, opacity: 0, scale: 0.5 }}
-                  animate={{ y: 0, opacity: 1, scale: 1 }}
-                  exit={{ y: 50, opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  initial={{ opacity: 0, scale: 0.6, y: -20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.6, y: 20 }}
+                  transition={{ duration: 0.25, delay: idx * 0.05 }}
                 >
-                  <PlayerHand carte={carte} />
+                  <Card carte={carte} />
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
       ))}
     </div>
   );
