@@ -90,6 +90,16 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
 };
 
 
+const handleNouvelleManche = async () => {
+  try {
+    const res = await demarrerPartie(parseInt(nbCartes, 10) || 1);
+    setEtatPartie(res.data);
+    setGagnant(null);
+  } catch {
+    alert("Impossible de démarrer une nouvelle manche");
+  }
+};
+
   return (
     <div className="mb-6 space-y-4 p-4 w-full max-w-xl bg-white rounded shadow-lg mx-auto">
       {/* --- Ajouter joueur et piocher --- */}
@@ -116,13 +126,19 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
           onChange={(e) => setNbCartes(e.target.value)}
           className="border text-black px-2 py-1 rounded w-20"
         />
-        <button
+<button
   onClick={handlePiocher}
-  disabled={!etatPartie?.partie_commencee || etatPartie?.partie_terminee}
-  className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50 hover:bg-indigo-600 transition"
+  disabled={
+    !etatPartie?.partie_commencee ||
+    etatPartie?.partie_terminee
+  }
+  className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50"
 >
   Piocher 🎴
 </button>
+
+
+
 
       </div>
 
@@ -161,6 +177,15 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
         >
           Gagnant
         </button>
+
+        <button
+          onClick={handleNouvelleManche}
+          className="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-1 rounded transition"
+        >
+          Nouvelle manche 🔄
+        </button>
+
+
 
         <button
           onClick={handleReset}

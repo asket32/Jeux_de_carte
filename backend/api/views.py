@@ -105,14 +105,12 @@ class ReinitialiserPartieAPI(APIView):
 # -----------------------
 class PiocherAPI(APIView):
     def post(self, request):
-        print("Partie commencée :", controleur.partie_commencee)
-        print("Partie terminée :", controleur.partie_terminee)
-
         if not controleur.piocher_cartes():
             return Response(
                 {"erreur": "Impossible de piocher"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        return Response(controleur.etat_partie())
+        return Response(controleur.etat_partie(), status=status.HTTP_200_OK)
+
 

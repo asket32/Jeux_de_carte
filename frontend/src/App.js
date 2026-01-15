@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import Menu from "./components/Menu";
 import GameBoard from "./components/GameBoard";
 
@@ -31,10 +32,16 @@ function App() {
       <GameBoard etatPartie={etatPartie} />
 
       {gagnant && (
-        <div className="mt-6 text-2xl font-bold text-green-700">
-          🏆 Gagnant : {gagnant}
-        </div>
-      )}
+  <motion.div
+    initial={{ scale: 0, rotate: -10 }}
+    animate={{ scale: 1, rotate: 0 }}
+    transition={{ type: "spring", stiffness: 200 }}
+    className="mt-6 text-3xl font-bold text-green-700"
+  >
+    🏆 Gagnant : {gagnant}
+  </motion.div>
+)}
+
     </div>
   );
 }

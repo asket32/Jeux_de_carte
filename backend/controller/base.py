@@ -121,3 +121,12 @@ class ControleurJeu:
                 for j in self.joueurs
             ]
         }
+
+    # ======================
+    # NOUVELLE MANCHE
+    # ======================
+
+    def nouvelle_manche(self):
+        self.reinitialiser_cartes()
+        self.partie_commencee = False
+        self.partie_terminee = False
