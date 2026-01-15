@@ -8,37 +8,42 @@ import {
   piocherCartes
 } from "../api/gameApi";
 
-export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
+export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
   const [nomJoueur, setNomJoueur] = useState("");
   const [joueursAjoutes, setJoueursAjoutes] = useState([]);
   const [peutJouer, setPeutJouer] = useState(false);
   const [nbCartes, setNbCartes] = useState(1);
 
-  // Vérifie si on peut démarrer (>= 2 joueurs)
   useEffect(() => {
-    setPeutJouer(joueursAjoutes.length >= 2);
-  }, [joueursAjoutes]);
+    setPeutJouer(joueursAjoutes.length >= 2 && !etatPartie?.partie_commencee);
+  }, [joueursAjoutes, etatPartie]);
 
   const handleAjouter = async () => {
-    if (!nomJoueur) return;
+    if (!nomJoueur.trim()) return;
+
+    if (etatPartie?.partie_commencee) {
+      alert("Impossible d'ajouter un joueur, la partie a déjà commencé !");
+      return;
+    }
 
     try {
-      const res = await ajouterJoueur(nomJoueur);
-      setJoueursAjoutes(res.data.joueurs);
+      const res = await ajouterJoueur(nomJoueur.trim());
+      setJoueursAjoutes(res.data.joueurs || []);
       setNomJoueur("");
       setEtatPartie(res.data);
     } catch (err) {
-      console.error("Erreur ajout joueur:", err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
       alert(err.response?.data?.erreur || "Erreur ajout joueur");
     }
   };
 
   const handleDemarrer = async () => {
     try {
-      const res = await demarrerPartie(nbCartes);
+      const res = await demarrerPartie(parseInt(nbCartes, 10) || 1);
       setEtatPartie(res.data);
     } catch (err) {
-      console.error("Erreur démarrer partie:", err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.erreur || "Impossible de démarrer la partie");
     }
   };
 
@@ -47,7 +52,8 @@ export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
       const res = await revelerCartes();
       setEtatPartie(res.data);
     } catch (err) {
-      console.error("Erreur révéler cartes:", err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.erreur || "Impossible de révéler les cartes");
     }
   };
 
@@ -56,7 +62,7 @@ export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
       const res = await obtenirGagnant();
       setGagnant(res.data.gagnant);
     } catch (err) {
-      console.error("Erreur obtenir gagnant:", err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
       alert(err.response?.data?.erreur || "Impossible d'obtenir le gagnant");
     }
   };
@@ -69,33 +75,37 @@ export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
       setJoueursAjoutes([]);
       setNomJoueur("");
     } catch (err) {
-      console.error("Erreur reset partie:", err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
+      alert("Erreur lors de la réinitialisation de la partie");
     }
   };
 
   const handlePiocher = async () => {
+    if (!etatPartie?.partie_commencee) return;
+
     try {
       const res = await piocherCartes();
       setEtatPartie(res.data);
     } catch (err) {
-      console.error("Erreur piocher cartes:", err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
+      alert("Impossible de piocher les cartes");
     }
   };
 
   return (
-    <div className="mb-6 space-y-4 flex flex-col items-center">
-      {/* --- Ajouter joueur --- */}
-      <div className="flex space-x-2 flex-wrap justify-center">
+    <div className="mb-6 space-y-4 p-4 w-full max-w-xl bg-white rounded shadow-lg mx-auto">
+      {/* --- Ajouter joueur et piocher --- */}
+      <div className="flex flex-wrap gap-2 items-center">
         <input
           type="text"
           value={nomJoueur}
           onChange={(e) => setNomJoueur(e.target.value)}
           placeholder="Nom joueur"
-          className="border text-black px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border text-black px-2 py-1 rounded flex-1 min-w-[120px]"
         />
         <button
           onClick={handleAjouter}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded transition"
+          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition"
         >
           Ajouter joueur
         </button>
@@ -106,22 +116,21 @@ export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
           max="5"
           value={nbCartes}
           onChange={(e) => setNbCartes(e.target.value)}
-          className="border text-black px-2 py-1 rounded w-20 text-center"
+          className="border text-black px-2 py-1 rounded w-20"
         />
-
         <button
           onClick={handlePiocher}
           disabled={!etatPartie?.partie_commencee}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded disabled:opacity-50 transition"
+          className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50 hover:bg-indigo-600 transition"
         >
           Piocher
         </button>
       </div>
 
-      {/* --- Liste joueurs ajoutés --- */}
+      {/* --- Liste des joueurs ajoutés --- */}
       <div>
         <strong>Joueurs ajoutés :</strong>
-        <ul className="list-disc ml-5">
+        <ul className="list-disc ml-5 mt-1">
           {joueursAjoutes.map((joueur, idx) => (
             <li key={idx}>{joueur}</li>
           ))}
@@ -129,13 +138,13 @@ export default function Menu({ setEtatPartie, setGagnant, etatPartie }) {
       </div>
 
       {/* --- Actions partie --- */}
-      <div className="flex space-x-2 flex-wrap justify-center">
+      <div className="flex flex-wrap gap-2 mt-2">
         <button
           onClick={handleDemarrer}
           disabled={!peutJouer}
-          className={`px-3 py-1 rounded text-white transition ${
+          className={`px-3 py-1 rounded text-white ${
             peutJouer ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 cursor-not-allowed"
-          }`}
+          } transition`}
         >
           Démarrer partie
         </button>
