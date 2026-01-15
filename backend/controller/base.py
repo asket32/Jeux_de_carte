@@ -124,8 +124,7 @@ class ControleurJeu:
 
     # ======================
     # NOUVELLE MANCHE
-    # ======================
-
+    # ====================== 
     def nouvelle_manche(self):
         self.reinitialiser_cartes()
         self.partie_commencee = False
