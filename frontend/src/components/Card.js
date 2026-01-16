@@ -1,3 +1,4 @@
+// src/components/Card.js
 export default function Card({ carte }) {
   if (!carte) return null;
 
@@ -9,16 +10,15 @@ export default function Card({ carte }) {
     );
   }
 
-  const isRed = carte.couleur === "♥" || carte.couleur === "♦";
+  // Génère le chemin vers le SVG depuis public/cards
+  const rank = carte.rang.toLowerCase();
+  const suit = carte.couleur.toLowerCase(); // ♥ → hearts, ♠ → spades...
+  const suitMap = { "♠": "spades", "♥": "hearts", "♦": "diamonds", "♣": "clubs" };
+  const imgPath = `/cards/${rank}_of_${suitMap[suit]}.svg`;
 
   return (
-    <div
-      className={`w-20 h-28 bg-white rounded border p-2 flex flex-col justify-between ${
-        isRed ? "text-red-600" : "text-black"
-      }`}
-    >
-      <span className="font-bold">{carte.rang}</span>
-      <span className="text-3xl text-center">{carte.couleur}</span>
+    <div className="w-20 h-28 bg-white rounded border p-1 flex items-center justify-center">
+      <img src={imgPath} alt={`${carte.rang}${carte.couleur}`} className="w-full h-full object-contain"/>
     </div>
   );
 }
