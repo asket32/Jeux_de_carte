@@ -1,3 +1,4 @@
+// src/components/Menu.js
 import { useState, useEffect } from "react";
 import {
   ajouterJoueur,
@@ -21,11 +22,6 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
   const handleAjouter = async () => {
     if (!nomJoueur.trim()) return;
 
-    if (etatPartie?.partie_commencee) {
-      alert("Impossible d'ajouter un joueur, la partie a déjà commencé !");
-      return;
-    }
-
     try {
       const res = await ajouterJoueur(nomJoueur.trim());
       setJoueursAjoutes(res.data.joueurs || []);
@@ -33,7 +29,7 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
       setEtatPartie(res.data);
     } catch (err) {
       console.error(err.response?.data || err.message);
-      alert(err.response?.data?.erreur || "Erreur ajout joueur");
+      alert(err.response?.data?.erreur || "Impossible d'ajouter le joueur");
     }
   };
 
@@ -47,13 +43,21 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
     }
   };
 
+  const handlePiocher = async () => {
+    try {
+      const res = await piocherCartes();
+      setEtatPartie(res.data);
+    } catch {
+      alert("Impossible de piocher");
+    }
+  };
+
   const handleReveler = async () => {
     try {
       const res = await revelerCartes();
       setEtatPartie(res.data);
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert(err.response?.data?.erreur || "Impossible de révéler les cartes");
+    } catch {
+      alert("Impossible de révéler les cartes");
     }
   };
 
@@ -61,9 +65,8 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
     try {
       const res = await obtenirGagnant();
       setGagnant(res.data.gagnant);
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert(err.response?.data?.erreur || "Impossible d'obtenir le gagnant");
+    } catch {
+      alert("Impossible d'obtenir le gagnant");
     }
   };
 
@@ -74,35 +77,23 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
       setGagnant(null);
       setJoueursAjoutes([]);
       setNomJoueur("");
-    } catch (err) {
-      console.error(err.response?.data || err.message);
+    } catch {
       alert("Erreur lors de la réinitialisation de la partie");
     }
   };
 
-    const handlePiocher = async () => {
-      try {
-        const res = await piocherCartes();
-        setEtatPartie(res.data);
-      } catch (err) {
-        alert("Impossible de piocher");
-  }
-};
-
-
-const handleNouvelleManche = async () => {
-  try {
-    const res = await demarrerPartie(parseInt(nbCartes, 10) || 1);
-    setEtatPartie(res.data);
-    setGagnant(null);
-  } catch {
-    alert("Impossible de démarrer une nouvelle manche");
-  }
-};
+  const handleNouvelleManche = async () => {
+    try {
+      const res = await demarrerPartie(parseInt(nbCartes, 10) || 1);
+      setEtatPartie(res.data);
+      setGagnant(null);
+    } catch {
+      alert("Impossible de démarrer une nouvelle manche");
+    }
+  };
 
   return (
     <div className="mb-6 space-y-4 p-4 w-full max-w-xl bg-white rounded shadow-lg mx-auto">
-      {/* --- Ajouter joueur et piocher --- */}
       <div className="flex flex-wrap gap-2 items-center">
         <input
           type="text"
@@ -126,33 +117,25 @@ const handleNouvelleManche = async () => {
           onChange={(e) => setNbCartes(e.target.value)}
           className="border text-black px-2 py-1 rounded w-20"
         />
-<button
-  onClick={handlePiocher}
-  disabled={
-    !etatPartie?.partie_commencee ||
-    etatPartie?.partie_terminee
-  }
-  className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50"
->
-  Piocher 🎴
-</button>
 
-
-
-
+        <button
+          onClick={handlePiocher}
+          disabled={!etatPartie?.partie_commencee || etatPartie?.partie_terminee}
+          className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50"
+        >
+          Piocher 🎴
+        </button>
       </div>
 
-      {/* --- Liste des joueurs ajoutés --- */}
       <div>
         <strong>Joueurs ajoutés :</strong>
         <ul className="list-disc ml-5 mt-1">
-          {joueursAjoutes.map((joueur, idx) => (
-            <li key={idx}>{joueur}</li>
+          {joueursAjoutes.map((j, idx) => (
+            <li key={idx}>{j}</li>
           ))}
         </ul>
       </div>
 
-      {/* --- Actions partie --- */}
       <div className="flex flex-wrap gap-2 mt-2">
         <button
           onClick={handleDemarrer}
@@ -184,8 +167,6 @@ const handleNouvelleManche = async () => {
         >
           Nouvelle manche 🔄
         </button>
-
-
 
         <button
           onClick={handleReset}

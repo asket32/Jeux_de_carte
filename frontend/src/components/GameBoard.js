@@ -1,11 +1,9 @@
-// GameBoard.js
+// src/components/GameBoard.js
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "./Card";
 
 export default function GameBoard({ etatPartie }) {
-  const joueurs = Array.isArray(etatPartie?.joueurs)
-    ? etatPartie.joueurs
-    : [];
+  const joueurs = Array.isArray(etatPartie?.joueurs) ? etatPartie.joueurs : [];
 
   if (joueurs.length === 0) {
     return (
@@ -25,9 +23,7 @@ export default function GameBoard({ etatPartie }) {
           transition={{ duration: 0.4 }}
           className="flex flex-col items-center"
         >
-          <h3 className="font-bold mb-3 text-xl text-gray-800">
-            {joueur.nom}
-          </h3>
+          <h3 className="font-bold mb-3 text-xl text-gray-800">{joueur.nom}</h3>
 
           <div className="flex space-x-3">
             <AnimatePresence>
