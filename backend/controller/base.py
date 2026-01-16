@@ -31,6 +31,7 @@ class ControleurJeu:
         self.joueurs.append(Joueur(nom))
         return True
 
+
     def lister_joueurs(self) -> List[str]:
         return [j.nom for j in self.joueurs]
 
