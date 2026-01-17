@@ -94,7 +94,7 @@ class GagnantAPI(APIView):
 # -----------------------
 class ReinitialiserPartieAPI(APIView):
     def post(self, request):
-        controleur.reinitialiser_partie()  # ⚡ supprime joueurs + cartes
+        controleur.reinitialiser_partie()
         return Response(
             {"message": "Partie réinitialisée"},
             status=status.HTTP_200_OK

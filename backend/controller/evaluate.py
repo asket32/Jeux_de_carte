@@ -9,7 +9,7 @@ class StrategieClassementRangCouleur:
 
         for joueur in joueurs:
             for carte in joueur.main:
-                valeur = carte.valeur  # utilise la propriété valeur de Carte
+                valeur = carte.valeur
                 if valeur > meilleure_valeur:
                     meilleure_valeur = valeur
                     meilleur_joueur = joueur.nom
