@@ -14,7 +14,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-200">
-      <h1 className="text-3xl font-bold mb-6">🎴 Jeu de Cartes</h1>
+      <h1 className="text-3xl font-bold mb-6">Jeu de Cartes</h1>
 
       <Menu
         setEtatPartie={(data) =>
@@ -38,7 +38,7 @@ function App() {
     transition={{ type: "spring", stiffness: 200 }}
     className="mt-6 text-3xl font-bold text-green-700"
   >
-    🏆 Gagnant : {gagnant}
+    Gagnant : {gagnant}
   </motion.div>
 )}
 

@@ -1,4 +1,3 @@
-// src/components/Menu.js
 import { useState, useEffect } from "react";
 import {
   ajouterJoueur,
@@ -123,7 +122,7 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
           disabled={!etatPartie?.partie_commencee || etatPartie?.partie_terminee}
           className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50"
         >
-          Piocher 🎴
+          Piocher cartes
         </button>
       </div>
 
@@ -165,7 +164,7 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
           onClick={handleNouvelleManche}
           className="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-1 rounded transition"
         >
-          Nouvelle manche 🔄
+          Nouvelle manche
         </button>
 
         <button

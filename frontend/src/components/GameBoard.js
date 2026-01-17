@@ -1,4 +1,3 @@
-// src/components/GameBoard.js
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "./Card";
 
@@ -8,7 +7,7 @@ export default function GameBoard({ etatPartie }) {
   if (joueurs.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen text-gray-500">
-        Ajoutez des joueurs pour commencer 🎴
+        Ajoutez des joueurs pour commencer la partie.
       </div>
     );
   }
