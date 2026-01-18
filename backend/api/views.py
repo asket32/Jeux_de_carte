@@ -6,7 +6,6 @@ from controller.base import ControleurJeu
 from controller.evaluate import StrategieClassementRangCouleur
 from models.paquet import Paquet
 
-# ⚡ Singleton du jeu
 strategie = StrategieClassementRangCouleur()
 controleur = ControleurJeu(Paquet(), strategie)
 
