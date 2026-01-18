@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api"; // URL de ton API Django
+const API_URL = "http://localhost:8000/api";
 
 export const ajouterJoueur = (nom) =>
   axios.post(`${API_URL}/joueurs/ajouter/`, { nom });
