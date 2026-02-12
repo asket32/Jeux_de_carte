@@ -5,7 +5,6 @@ import {
   revelerCartes,
   obtenirGagnant,
   reinitialiserPartie,
-  // piocherCartes
 } from "../api/gameApi";
 
 export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
@@ -13,6 +12,7 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
   const [joueursAjoutes, setJoueursAjoutes] = useState([]);
   const [peutJouer, setPeutJouer] = useState(false);
   const [nbCartes, setNbCartes] = useState(1);
+  const [messageErreur, setMessageErreur] = useState(null); // ✅ nouveau
 
   useEffect(() => {
     setPeutJouer(joueursAjoutes.length >= 2 && !etatPartie?.partie_commencee);
@@ -26,9 +26,12 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
       setJoueursAjoutes(res.data.joueurs || []);
       setNomJoueur("");
       setEtatPartie(res.data);
+      setMessageErreur(null); // ✅ reset erreur si succès
     } catch (err) {
       console.error(err.response?.data || err.message);
-      alert(err.response?.data?.erreur || "Impossible d'ajouter le joueur");
+      setMessageErreur(
+        err.response?.data?.erreur || "Impossible d'ajouter le joueur"
+      );
     }
   };
 
@@ -36,27 +39,22 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
     try {
       const res = await demarrerPartie(parseInt(nbCartes, 10) || 1);
       setEtatPartie(res.data);
+      setMessageErreur(null);
     } catch (err) {
       console.error(err.response?.data || err.message);
-      alert(err.response?.data?.erreur || "Impossible de démarrer la partie");
+      setMessageErreur(
+        err.response?.data?.erreur || "Impossible de démarrer la partie"
+      );
     }
   };
-
-  // const handlePiocher = async () => {
-  //   try {
-  //     const res = await piocherCartes();
-  //     setEtatPartie(res.data);
-  //   } catch {
-  //     alert("Impossible de piocher");
-  //   }
-  // };
 
   const handleReveler = async () => {
     try {
       const res = await revelerCartes();
       setEtatPartie(res.data);
+      setMessageErreur(null);
     } catch {
-      alert("Impossible de révéler les cartes");
+      setMessageErreur("Impossible de révéler les cartes");
     }
   };
 
@@ -64,8 +62,9 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
     try {
       const res = await obtenirGagnant();
       setGagnant(res.data.gagnant);
+      setMessageErreur(null);
     } catch {
-      alert("Impossible d'obtenir le gagnant");
+      setMessageErreur("Impossible d'obtenir le gagnant");
     }
   };
 
@@ -76,8 +75,9 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
       setGagnant(null);
       setJoueursAjoutes([]);
       setNomJoueur("");
+      setMessageErreur(null);
     } catch {
-      alert("Erreur lors de la réinitialisation de la partie");
+      setMessageErreur("Erreur lors de la réinitialisation de la partie");
     }
   };
 
@@ -86,13 +86,22 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
       const res = await demarrerPartie(parseInt(nbCartes, 10) || 1);
       setEtatPartie(res.data);
       setGagnant(null);
+      setMessageErreur(null);
     } catch {
-      alert("Impossible de démarrer une nouvelle manche");
+      setMessageErreur("Impossible de démarrer une nouvelle manche");
     }
   };
 
   return (
     <div className="mb-6 space-y-4 p-4 w-full max-w-xl bg-white rounded shadow-lg mx-auto">
+      
+      {/* ✅ Affichage message erreur */}
+      {messageErreur && (
+        <div className="bg-red-100 text-red-700 border border-red-300 px-4 py-2 rounded">
+          {messageErreur}
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2 items-center">
         <input
           type="text"
@@ -116,14 +125,6 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
           onChange={(e) => setNbCartes(e.target.value)}
           className="border text-black px-2 py-1 rounded w-20"
         />
-
-        {/* <button
-          onClick={handlePiocher}
-          disabled={!etatPartie?.partie_commencee || etatPartie?.partie_terminee}
-          className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50"
-        >
-          Piocher cartes
-        </button> */}
       </div>
 
       <div>
@@ -140,7 +141,9 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
           onClick={handleDemarrer}
           disabled={!peutJouer}
           className={`px-3 py-1 rounded text-white ${
-            peutJouer ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 cursor-not-allowed"
+            peutJouer
+              ? "bg-green-500 hover:bg-green-600"
+              : "bg-gray-400 cursor-not-allowed"
           } transition`}
         >
           Démarrer partie
