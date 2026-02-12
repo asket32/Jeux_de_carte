@@ -58,7 +58,6 @@ class DemarrerPartieAPI(APIView):
         return Response(controleur.etat_partie(), status=status.HTTP_200_OK)
 
 
-
 # -----------------------
 # API Révéler cartes
 # -----------------------
