@@ -5,7 +5,7 @@ import {
   revelerCartes,
   obtenirGagnant,
   reinitialiserPartie,
-  piocherCartes
+  // piocherCartes
 } from "../api/gameApi";
 
 export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
@@ -42,14 +42,14 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
     }
   };
 
-  const handlePiocher = async () => {
-    try {
-      const res = await piocherCartes();
-      setEtatPartie(res.data);
-    } catch {
-      alert("Impossible de piocher");
-    }
-  };
+  // const handlePiocher = async () => {
+  //   try {
+  //     const res = await piocherCartes();
+  //     setEtatPartie(res.data);
+  //   } catch {
+  //     alert("Impossible de piocher");
+  //   }
+  // };
 
   const handleReveler = async () => {
     try {
@@ -117,13 +117,13 @@ export default function Menu({ etatPartie, setEtatPartie, setGagnant }) {
           className="border text-black px-2 py-1 rounded w-20"
         />
 
-        <button
+        {/* <button
           onClick={handlePiocher}
           disabled={!etatPartie?.partie_commencee || etatPartie?.partie_terminee}
           className="bg-indigo-500 text-white px-4 py-1 rounded disabled:opacity-50"
         >
           Piocher cartes
-        </button>
+        </button> */}
       </div>
 
       <div>
