@@ -6,6 +6,7 @@ from models.joueur import Joueur
 class ControleurJeu:
     NOMBRE_MAX_JOUEURS = 5
     NOMBRE_MIN_JOUEURS = 2
+    NOMBRE_MAX_CARTES_PAR_JOUEUR = 5
 
     def __init__(self, paquet: Paquet, strategie_verification):
         self.paquet = paquet
@@ -14,48 +15,60 @@ class ControleurJeu:
         self.partie_commencee = False
         self.partie_terminee = False
 
-    # ======================
-    # JOUEURS
-    # ======================
-
     def ajouter_joueur(self, nom: str) -> bool:
+        nom = (nom or "").strip()
+
         if self.partie_commencee:
+            return False
+
+        if not nom:
             return False
 
         if len(self.joueurs) >= self.NOMBRE_MAX_JOUEURS:
             return False
 
-        if any(j.nom == nom for j in self.joueurs):
+        if any(j.nom.lower() == nom.lower() for j in self.joueurs):
             return False
 
         self.joueurs.append(Joueur(nom))
         return True
 
-
     def lister_joueurs(self) -> List[str]:
         return [j.nom for j in self.joueurs]
 
-    # ======================
-    # PARTIE
-    # ======================
-
     def peut_demarrer(self) -> bool:
         return len(self.joueurs) >= self.NOMBRE_MIN_JOUEURS
+
+    def cartes_disponibles(self) -> int:
+        return len(self.paquet.cartes)
+
+    def total_cartes(self) -> int:
+        return self.cartes_disponibles() + sum(len(joueur.main) for joueur in self.joueurs)
+
+    def peut_distribuer(self, nb_cartes: int) -> bool:
+        if nb_cartes < 1 or nb_cartes > self.NOMBRE_MAX_CARTES_PAR_JOUEUR:
+            return False
+
+        return self.total_cartes() >= len(self.joueurs) * nb_cartes
 
     def demarrer_partie(self, nb_cartes: int = 1) -> bool:
         if not self.peut_demarrer():
             return False
 
-        self.reinitialiser_cartes()
+        if not self.peut_distribuer(nb_cartes):
+            return False
 
+        self.reinitialiser_cartes()
         self.partie_commencee = True
         self.partie_terminee = False
 
         for _ in range(nb_cartes):
             for joueur in self.joueurs:
                 carte = self.paquet.piocher()
-                if carte:
-                    joueur.ajouter_carte(carte)
+                if carte is None:
+                    self.reinitialiser_cartes()
+                    return False
+                joueur.ajouter_carte(carte)
 
         return True
 
@@ -63,15 +76,22 @@ class ControleurJeu:
         if not self.partie_commencee or self.partie_terminee:
             return False
 
+        if self.cartes_disponibles() < len(self.joueurs):
+            return False
+
         for joueur in self.joueurs:
             carte = self.paquet.piocher()
-            if carte:
-                joueur.ajouter_carte(carte)
+            if carte is None:
+                return False
+            joueur.ajouter_carte(carte)
 
         return True
 
     def reveler_cartes(self) -> bool:
         if not self.partie_commencee or self.partie_terminee:
+            return False
+
+        if any(len(joueur.main) == 0 for joueur in self.joueurs):
             return False
 
         for joueur in self.joueurs:
@@ -84,12 +104,11 @@ class ControleurJeu:
         if not self.partie_commencee:
             return None
 
+        if any(len(joueur.main) == 0 for joueur in self.joueurs):
+            return None
+
         self.partie_terminee = True
         return self.strategie_verification.check(self.joueurs)
-
-    # ======================
-    # RESET
-    # ======================
 
     def reinitialiser_cartes(self):
         for joueur in self.joueurs:
@@ -106,10 +125,6 @@ class ControleurJeu:
         self.reinitialiser_cartes()
         self.joueurs = []
 
-    # ======================
-    # ÉTAT
-    # ======================
-
     def etat_partie(self) -> dict:
         return {
             "partie_commencee": self.partie_commencee,
@@ -117,15 +132,12 @@ class ControleurJeu:
             "joueurs": [
                 {
                     "nom": j.nom,
-                    "main": j.montrer_main()
+                    "main": j.montrer_main(),
                 }
                 for j in self.joueurs
-            ]
+            ],
         }
 
-    # ======================
-    # NOUVELLE MANCHE
-    # ====================== 
     def nouvelle_manche(self):
         self.reinitialiser_cartes()
         self.partie_commencee = False
